@@ -5,7 +5,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
-import { GoogleGenAI } from "@google/genai";
+// Fix: Import `Type` to define a response schema for JSON output.
+import { GoogleGenAI, Type } from "@google/genai";
 
 // Icon components defined for use in the application.
 const IconWrapper = ({ children }: { children?: React.ReactNode }) => (
@@ -23,6 +24,8 @@ const UploadIcon = () => <IconWrapper><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 
 const EmailIcon = () => <IconWrapper><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></IconWrapper>;
 const ImageIcon = () => <IconWrapper><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></IconWrapper>;
 const MenuIcon = () => <IconWrapper><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></IconWrapper>;
+const SunIcon = () => <IconWrapper><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></IconWrapper>;
+const MoonIcon = () => <IconWrapper><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></IconWrapper>;
 
 type FlyerKey = 'doorHanger' | 'windows' | 'bath' | 'roof' | 'siding';
 type View = 'hunter' | 'analytics' | `flyer-${FlyerKey}` | 'tools' | 'settings';
@@ -41,6 +44,7 @@ type Opportunity = {
     status: OpportunityStatus;
 };
 type StatusFilter = 'All' | OpportunityStatus;
+type Theme = 'dark' | 'light';
 
 
 const FLYER_CONFIG: { key: FlyerKey, label: string }[] = [
@@ -56,17 +60,30 @@ const Overlay = ({ onClick }: { onClick: () => void }) => <div className="overla
 const App = () => {
     const [isBriefingModalOpen, setBriefingModalOpen] = useState(false);
     const [isSidebarOpen, setSidebarOpen] = useState(false);
-    const [flyers, setFlyers] = useState<Record<FlyerKey, string | null>>({
-        doorHanger: null,
-        windows: null,
-        bath: null,
-        roof: null,
-        siding: null,
+    const [flyers, setFlyers] = useState<Record<FlyerKey, string[]>>({
+        doorHanger: [],
+        windows: [],
+        bath: [],
+        roof: [],
+        siding: [],
     });
     const [messageTemplates, setMessageTemplates] = useState<string[]>([
         "Hi! We offer free estimates for home projects, including a thermal camera scan. Interested?",
         "Following up on your interest. Our thermal scan can spot hidden issues others miss. Can I send you more info?"
     ]);
+    const [theme, setTheme] = useState<Theme>('dark');
+
+    useEffect(() => {
+        if (theme === 'light') {
+            document.body.classList.add('light-theme');
+        } else {
+            document.body.classList.remove('light-theme');
+        }
+    }, [theme]);
+
+    const toggleTheme = () => {
+        setTheme(t => t === 'dark' ? 'light' : 'dark');
+    };
 
     const handleAddTemplate = (template: string) => {
         const trimmedTemplate = template.trim();
@@ -99,7 +116,13 @@ const App = () => {
     
     return (
         <div className="app-container">
-            <Sidebar currentView={currentView} setView={setCurrentView} isOpen={isSidebarOpen} />
+            <Sidebar 
+                currentView={currentView} 
+                setView={setCurrentView} 
+                isOpen={isSidebarOpen}
+                theme={theme}
+                toggleTheme={toggleTheme} 
+            />
             <main className="main-content">
                 <Header 
                     view={currentView}
@@ -114,7 +137,24 @@ const App = () => {
     );
 };
 
-const Sidebar = ({ currentView, setView, isOpen }: { currentView: View, setView: (view: View) => void, isOpen: boolean }) => (
+const ThemeToggle = ({ theme, toggleTheme }: { theme: Theme, toggleTheme: () => void }) => (
+    <div className="theme-toggle-container">
+        <SunIcon />
+        <label className="theme-toggle">
+            <input type="checkbox" checked={theme === 'dark'} onChange={toggleTheme} aria-label="Toggle theme"/>
+            <span className="slider"></span>
+        </label>
+        <MoonIcon />
+    </div>
+);
+
+const Sidebar = ({ currentView, setView, isOpen, theme, toggleTheme }: { 
+    currentView: View, 
+    setView: (view: View) => void, 
+    isOpen: boolean,
+    theme: Theme,
+    toggleTheme: () => void
+}) => (
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7V17L12 22L22 17V7L12 2ZM12 4.219L19.531 8.5V15.5L12 19.781L4.469 15.5V8.5L12 4.219Z" fill="currentColor"/></svg>
@@ -142,6 +182,7 @@ const Sidebar = ({ currentView, setView, isOpen }: { currentView: View, setView:
             <a href="#" className="nav-item"><SettingsIcon /><span>Settings</span></a>
         </nav>
         <div className="sidebar-footer">
+            <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
             <div className="user-profile">
                 <UserIcon />
                 <span>John Doe</span>
@@ -185,7 +226,7 @@ const initialOpportunityData: Opportunity[] = [
 ];
 
 const HunterView = ({ flyers, messageTemplates, onAddTemplate }: { 
-    flyers: Record<FlyerKey, string | null>;
+    flyers: Record<FlyerKey, string[]>;
     messageTemplates: string[];
     onAddTemplate: (template: string) => void;
 }) => {
@@ -283,7 +324,7 @@ const OpportunityFeed = ({ opportunities, onMessage, onEmail, onUpdateStatus, on
     onEnrichmentSuccess: (id: number, phone: string) => void,
     activeFilter: StatusFilter,
     setActiveFilter: (filter: StatusFilter) => void,
-    flyers: Record<FlyerKey, string | null>
+    flyers: Record<FlyerKey, string[]>
 }) => {
     const categories: OpportunityCategory[] = ['Windows', 'Bath', 'Roof', 'Siding'];
 
@@ -327,7 +368,7 @@ const OpportunityCard: React.FC<{
     onEmail: () => void,
     onUpdateStatus: (id: number, status: OpportunityStatus) => void,
     onEnrichmentSuccess: (id: number, phone: string) => void,
-    flyers: Record<FlyerKey, string | null>
+    flyers: Record<FlyerKey, string[]>
 }> = ({ opportunity, onMessage, onEmail, onUpdateStatus, onEnrichmentSuccess, flyers }) => {
     const [isEnriching, setIsEnriching] = useState(false);
     const [flyerMenuOpen, setFlyerMenuOpen] = useState(false);
@@ -364,7 +405,9 @@ const OpportunityCard: React.FC<{
     }
 
     const handleSendFlyer = (type: FlyerKey) => {
-        if (!flyers[type]) {
+        const designs = flyers[type];
+        // Ensure designs is an array and has content before proceeding.
+        if (!Array.isArray(designs) || designs.length === 0) {
             alert(`Please upload a design for "${type}" in 'Manage Flyers' first.`);
             return;
         }
@@ -411,7 +454,7 @@ const OpportunityCard: React.FC<{
                 <span className="opportunity-source">Source: {opportunity.source}</span>
                 <div className="opportunity-actions">
                     <div className="flyer-action-container" ref={flyerMenuRef}>
-                         <button className="action-btn flyer-btn" onClick={() => setFlyerMenuOpen(!flyerMenuOpen)} disabled={!Object.values(flyers).some(f => f !== null)}>
+                         <button className="action-btn flyer-btn" onClick={() => setFlyerMenuOpen(!flyerMenuOpen)} disabled={!Object.values(flyers).some(f => f && f.length > 0)}>
                              Send Flyer
                          </button>
                          {flyerMenuOpen && (
@@ -421,7 +464,8 @@ const OpportunityCard: React.FC<{
                                         key={opt.key} 
                                         className="flyer-dropdown-item" 
                                         onClick={() => handleSendFlyer(opt.key)}
-                                        disabled={!flyers[opt.key]}
+                                        // Fix: Add Array.isArray check as a type guard before accessing .length.
+                                        disabled={!Array.isArray(flyers[opt.key]) || flyers[opt.key].length === 0}
                                     >
                                         {opt.label}
                                     </button>
@@ -622,13 +666,30 @@ const EmailModal = ({ opportunity, onClose }: {
                 const response = await ai.models.generateContent({
                     model: 'gemini-2.5-flash',
                     contents: prompt,
-                    config: { responseMimeType: 'application/json' },
+                    // Fix: Added responseSchema to ensure the model returns a structured JSON object.
+                    config: { 
+                        responseMimeType: 'application/json',
+                        responseSchema: {
+                            type: Type.OBJECT,
+                            properties: {
+                                subject: { type: Type.STRING },
+                                body: { type: Type.STRING },
+                            },
+                            required: ['subject', 'body'],
+                        },
+                    },
                 });
 
-                // The response.text is a JSON string, so we parse it.
-                const generatedEmail = JSON.parse(response.text);
-                setSubject(generatedEmail.subject);
-                setBody(generatedEmail.body);
+                // Fix: Added a try-catch block to safely parse the JSON response from the model.
+                try {
+                    // The response.text is a JSON string, so we parse it.
+                    const generatedEmail = JSON.parse(response.text);
+                    setSubject(generatedEmail.subject);
+                    setBody(generatedEmail.body);
+                } catch (parseError) {
+                    console.error("Error parsing generated email JSON:", parseError);
+                    throw new Error("Failed to parse AI response.");
+                }
             } catch (error) {
                 console.error("Error generating email:", error);
                 setSubject("Free Estimate for Your Home Project");
@@ -686,39 +747,75 @@ const EmailModal = ({ opportunity, onClose }: {
 
 const FlyerManagerView = ({ flyerKey, flyers, setFlyers }: {
     flyerKey: FlyerKey;
-    flyers: Record<FlyerKey, string | null>;
-    setFlyers: (flyers: Record<FlyerKey, string | null>) => void;
+    flyers: Record<FlyerKey, string[]>;
+    setFlyers: (flyers: Record<FlyerKey, string[]>) => void;
 }) => {
     const flyer = FLYER_CONFIG.find(f => f.key === flyerKey);
 
-    const handleFileUpload = (fileDataUrl: string) => {
-        setFlyers({ ...flyers, [flyerKey]: fileDataUrl });
+    const handleFileUpload = (newFileDataUrls: string[]) => {
+        setFlyers({
+            ...flyers,
+            [flyerKey]: [...(flyers[flyerKey] || []), ...newFileDataUrls],
+        });
+    };
+
+    const handleRemoveFile = (indexToRemove: number) => {
+        setFlyers({
+            ...flyers,
+            [flyerKey]: flyers[flyerKey].filter((_, index) => index !== indexToRemove),
+        });
     };
     
     return (
         <div className="flyer-manager-view">
             <FileUpload 
                 label={flyer?.label || 'Flyer'} 
-                uploadedFile={flyers[flyerKey]} 
+                uploadedFiles={flyers[flyerKey]} 
                 onFileUpload={handleFileUpload} 
+                onRemoveFile={handleRemoveFile}
             />
         </div>
     );
 };
 
-const FileUpload = ({ label, uploadedFile, onFileUpload }: { label: string, uploadedFile: string | null, onFileUpload: (file: string) => void }) => {
+const FileUpload = ({ label, uploadedFiles, onFileUpload, onRemoveFile }: { 
+    label: string, 
+    uploadedFiles: string[], 
+    onFileUpload: (files: string[]) => void,
+    onRemoveFile: (index: number) => void
+}) => {
     const [isDragging, setIsDragging] = useState(false);
 
-    const handleFile = (file: File) => {
-        if (file && file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                onFileUpload(e.target?.result as string);
-            };
-            reader.readAsDataURL(file);
-        } else {
-            alert('Please upload a valid image file (JPEG, PNG, etc).');
-        }
+    const handleFiles = (files: FileList | null) => {
+        if (!files || files.length === 0) return;
+
+        const filePromises = Array.from(files).map(file => {
+            return new Promise<string>((resolve, reject) => {
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        resolve(e.target?.result as string);
+                    };
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                } else {
+                    resolve(''); 
+                }
+            });
+        });
+
+        Promise.all(filePromises).then(dataUrls => {
+            const validUrls = dataUrls.filter(url => url);
+            if (validUrls.length > 0) {
+                onFileUpload(validUrls);
+            }
+            if (validUrls.length < files.length) {
+                alert('Some files were not valid images and were ignored.');
+            }
+        }).catch(error => {
+            console.error("Error reading files:", error);
+            alert('An error occurred while uploading the files.');
+        });
     };
     
     const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -734,41 +831,65 @@ const FileUpload = ({ label, uploadedFile, onFileUpload }: { label: string, uplo
     const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         setIsDragging(false);
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-            handleFile(e.dataTransfer.files[0]);
-        }
+        handleFiles(e.dataTransfer.files);
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            handleFile(e.target.files[0]);
-        }
+        handleFiles(e.target.files);
+        e.target.value = '';
     };
+
+    const triggerFileInput = () => document.getElementById(`file-input-${label}`)?.click();
+
+    const hasFiles = uploadedFiles && uploadedFiles.length > 0;
 
     return (
         <div className="file-upload-container">
-            <div 
-                className={`drop-zone ${isDragging ? 'dragging' : ''}`}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                onClick={() => document.getElementById(`file-input-${label}`)?.click()}
-            >
-                {uploadedFile ? (
-                    <img src={uploadedFile} alt={`${label} preview`} className="flyer-preview" />
-                ) : (
-                    <div className="drop-zone-prompt">
-                        <UploadIcon />
-                        <span>Drag & drop or click to upload</span>
-                        <p>to replace the current flyer</p>
+            {!hasFiles ? (
+                <div className="empty-flyer-prompt">
+                    <div className="empty-flyer-icon">
+                        <ImageIcon />
                     </div>
-                )}
-            </div>
+                    <h3>No {label} Designs Uploaded</h3>
+                    <p>Get started by uploading your first flyer design. You can upload multiple images at once.</p>
+                    <button className="btn btn-primary" onClick={triggerFileInput}>
+                        <UploadIcon />
+                        Upload Flyer
+                    </button>
+                </div>
+            ) : (
+                <>
+                    <div 
+                        className={`drop-zone ${isDragging ? 'dragging' : ''}`}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                        onClick={triggerFileInput}
+                    >
+                        <div className="drop-zone-prompt">
+                            <UploadIcon />
+                            <span>Drag & drop more files or click to upload</span>
+                        </div>
+                    </div>
+                    <div className="flyer-gallery">
+                        <h4>Your {label} Collection</h4>
+                        <div className="gallery-grid">
+                            {uploadedFiles.map((file, index) => (
+                                <div key={index} className="gallery-item">
+                                    <img src={file} alt={`${label} preview ${index + 1}`} className="flyer-preview" />
+                                    <button className="remove-flyer-btn" onClick={(e) => { e.stopPropagation(); onRemoveFile(index); }}>&times;</button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </>
+            )}
             <input 
                 type="file" 
                 id={`file-input-${label}`}
                 style={{ display: 'none' }} 
                 accept="image/*"
+                multiple
                 onChange={handleFileChange} 
             />
         </div>
