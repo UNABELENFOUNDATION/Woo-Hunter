@@ -9,6 +9,7 @@ import { createRoot } from 'react-dom/client';
 import { GoogleGenAI, Type } from "@google/genai";
 import StaticFreeMap from './StaticFreeMap';
 import ContactForm from './frontend/ContactForm';
+import Login from './frontend/Login';
 
 // Debug: Check API key availability
 console.log('🔑 API Key check:', {
@@ -144,7 +145,7 @@ const EXPORT_PRESETS = {
 
 const Overlay = ({ onClick }: { onClick: () => void }) => <div className="overlay" onClick={onClick}></div>;
 
-const App = () => {
+const App = ({ onLogout }: { onLogout: () => void }) => {
     const [isSidebarOpen, setSidebarOpen] = useState(false);
     const [flyers, setFlyers] = useState<Record<FlyerKey, string[]>>({
         doorHanger: [],
@@ -236,7 +237,8 @@ const App = () => {
                 setView={setCurrentView} 
                 isOpen={isSidebarOpen}
                 theme={theme}
-                toggleTheme={toggleTheme} 
+                toggleTheme={toggleTheme}
+                onLogout={onLogout}
             />
             <main className="main-content">
                 <Header 
@@ -263,20 +265,17 @@ const ThemeToggle = ({ theme, toggleTheme }: { theme: Theme, toggleTheme: () => 
     </div>
 );
 
-const Sidebar = ({ currentView, setView, isOpen, theme, toggleTheme }: { 
+const Sidebar = ({ currentView, setView, isOpen, theme, toggleTheme, onLogout }: { 
     currentView: View, 
     setView: (view: View) => void, 
     isOpen: boolean,
     theme: Theme,
-    toggleTheme: () => void
+    toggleTheme: () => void,
+    onLogout: () => void
 }) => (
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
-            <img
-                src="/assets/Images/ChatGPT Image Sep 28, 2025, 01_37_32 PM.png"
-                alt="Woo Hunter"
-                className="nav-logo"
-            />
+            <h2 style={{ color: '#007bff', fontSize: '1.5rem', fontWeight: 'bold' }}>Woo Hunter</h2>
         </div>
         <nav className="sidebar-nav">
             <a href="#" className={`nav-item ${currentView === 'hunter' ? 'active' : ''}`} onClick={() => setView('hunter')}><DashboardIcon /><span>Hunter View</span></a>
@@ -295,6 +294,22 @@ const Sidebar = ({ currentView, setView, isOpen, theme, toggleTheme }: {
             <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
             <div className="user-profile">
                 <span>John Doe</span>
+                <button 
+                    className="logout-btn" 
+                    onClick={onLogout}
+                    style={{
+                        marginTop: '8px',
+                        padding: '4px 8px',
+                        backgroundColor: '#dc3545',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '12px'
+                    }}
+                >
+                    Logout
+                </button>
             </div>
         </div>
     </aside>
@@ -2778,5 +2793,33 @@ const FileUpload = ({ label, uploadedFiles, onFileUpload, onRemoveFile, currentO
 };
 
 
+const MainApp = () => {
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    useEffect(() => {
+        const loggedIn = localStorage.getItem('wooLoggedIn');
+        if (loggedIn === 'true') {
+            setIsLoggedIn(true);
+        }
+    }, []);
+
+    const handleLogin = (password: string) => {
+        localStorage.setItem('wooLoggedIn', 'true');
+        setIsLoggedIn(true);
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('wooLoggedIn');
+        setIsLoggedIn(false);
+    };
+
+    if (!isLoggedIn) {
+        return <Login onLogin={handleLogin} />;
+    }
+
+    return <App onLogout={handleLogout} />;
+};
+
+
 const root = createRoot(document.getElementById('root')!);
-root.render(<App />);
+root.render(<MainApp />);
