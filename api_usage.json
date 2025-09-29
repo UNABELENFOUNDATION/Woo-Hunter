@@ -1,0 +1,83 @@
+{
+  "GEMINI_API": {
+    "limits": {
+      "daily_limit": 1000,
+      "monthly_limit": 30000,
+      "daily_cost_limit": 5.0,
+      "monthly_cost_limit": 100.0,
+      "cost_per_request": 0.001
+    },
+    "today": {
+      "calls": 0,
+      "cost": 0.0
+    },
+    "month": {
+      "calls": 0,
+      "cost": 0.0
+    },
+    "budget_check": {
+      "status": "ok",
+      "warnings": [],
+      "usage": {
+        "daily_calls": 0,
+        "daily_cost": 0,
+        "monthly_calls": 0,
+        "monthly_cost": 0.0
+      }
+    }
+  },
+  "GOOGLE_PLACES_API": {
+    "limits": {
+      "daily_limit": 1000,
+      "monthly_limit": 30000,
+      "daily_cost_limit": 2.0,
+      "monthly_cost_limit": 50.0,
+      "cost_per_request": 0.002
+    },
+    "today": {
+      "calls": 0,
+      "cost": 0.0
+    },
+    "month": {
+      "calls": 0,
+      "cost": 0.0
+    },
+    "budget_check": {
+      "status": "ok",
+      "warnings": [],
+      "usage": {
+        "daily_calls": 0,
+        "daily_cost": 0,
+        "monthly_calls": 0,
+        "monthly_cost": 0.0
+      }
+    }
+  },
+  "OPENWEATHER_API": {
+    "limits": {
+      "daily_limit": 1000,
+      "monthly_limit": 100000,
+      "daily_cost_limit": 0.5,
+      "monthly_cost_limit": 10.0,
+      "cost_per_request": 0.0005
+    },
+    "today": {
+      "calls": 0,
+      "cost": 0.0
+    },
+    "month": {
+      "calls": 0,
+      "cost": 0.0
+    },
+    "budget_check": {
+      "status": "ok",
+      "warnings": [],
+      "usage": {
+        "daily_calls": 0,
+        "daily_cost": 0,
+        "monthly_calls": 0,
+        "monthly_cost": 0.0
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+pydantic
+python-dotenv
+pgeocode
+firebase-admin
+requests
+google-generativeai

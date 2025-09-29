@@ -1,0 +1,23 @@
+{
+  "GEMINI_API": {
+    "daily_limit": 1000,
+    "monthly_limit": 30000,
+    "daily_cost_limit": 5.0,
+    "monthly_cost_limit": 100.0,
+    "cost_per_request": 0.001
+  },
+  "GOOGLE_PLACES_API": {
+    "daily_limit": 1000,
+    "monthly_limit": 30000,
+    "daily_cost_limit": 2.0,
+    "monthly_cost_limit": 50.0,
+    "cost_per_request": 0.002
+  },
+  "OPENWEATHER_API": {
+    "daily_limit": 1000,
+    "monthly_limit": 100000,
+    "daily_cost_limit": 0.5,
+    "monthly_cost_limit": 10.0,
+    "cost_per_request": 0.0005
+  }
+}

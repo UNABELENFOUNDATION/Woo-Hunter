@@ -1,0 +1,17 @@
+{
+  "total_savings": 0.015,
+  "monthly_savings": 0.015,
+  "api_calls": {
+    "google_maps": 0,
+    "google_places": 0,
+    "free_geocoding": 1,
+    "free_elevation": 1,
+    "free_timezone": 1
+  },
+  "costs_avoided": {
+    "google_maps_per_call": 0.005,
+    "google_places_per_call": 0.0025,
+    "last_updated": "2025-09-29T02:45:22.651799"
+  },
+  "monthly_stats": []
+}
