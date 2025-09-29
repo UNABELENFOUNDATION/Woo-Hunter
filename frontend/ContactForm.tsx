@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001';
+
 interface ContactFormData {
   name: string;
   email: string;
@@ -41,7 +43,7 @@ export default function ContactForm() {
 
     try {
       // Submit to backend API
-      const response = await fetch('http://localhost:8001/leads/submit', {
+            const response = await fetch(`${API_BASE_URL}/leads/submit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

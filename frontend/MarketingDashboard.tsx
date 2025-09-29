@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001';
+
 interface Campaign {
   type: string;
   trigger: string;
@@ -33,7 +35,7 @@ export default function MarketingDashboard() {
   const runCampaigns = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8001/api/marketing/run-campaigns');
+      const response = await fetch(`${API_BASE_URL}/api/marketing/run-campaigns`);
       const data = await response.json();
       setCampaignData(data);
       setLastUpdate(new Date().toLocaleTimeString());
@@ -46,7 +48,7 @@ export default function MarketingDashboard() {
 
   const loadReport = async () => {
     try {
-      const response = await fetch('http://localhost:8001/api/marketing/campaign-report');
+      const response = await fetch(`${API_BASE_URL}/api/marketing/campaign-report`);
       const data = await response.json();
       setRoiData(data.roi_tracking);
     } catch (error) {
