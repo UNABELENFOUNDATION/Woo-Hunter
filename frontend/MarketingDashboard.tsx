@@ -39,7 +39,7 @@ export default function MarketingDashboard() {
       const data = await response.json();
       setCampaignData(data);
       setLastUpdate(new Date().toLocaleTimeString());
-      alert(`Generated ${data.total_campaigns} automated campaigns!`);
+      alert(`Generated ${data.total_campaigns} campaign and ${data.lead_summary?.total_leads || 0} fresh leads for high-value Phoenix areas!`);
     } catch (error) {
       alert('Failed to run campaigns');
     }
@@ -58,11 +58,18 @@ export default function MarketingDashboard() {
 
   useEffect(() => {
     loadReport();
-    // Auto-refresh campaign data every 5 seconds for live fluctuating numbers
-    const interval = setInterval(() => {
+
+    // Check if we should run daily campaigns (midnight/morning or 24+ hours since last run)
+    const lastRun = localStorage.getItem('lastCampaignRun');
+    const now = new Date();
+    const shouldRun = !lastRun ||
+                      (now.getTime() - new Date(lastRun).getTime()) > (24 * 60 * 60 * 1000) || // 24 hours
+                      (now.getHours() >= 0 && now.getHours() <= 6); // Midnight to 6 AM
+
+    if (shouldRun) {
       runCampaigns();
-    }, 5000);
-    return () => clearInterval(interval);
+      localStorage.setItem('lastCampaignRun', now.toISOString());
+    }
   }, []);
 
   const getUrgencyColor = (urgency: string) => {
@@ -80,9 +87,9 @@ export default function MarketingDashboard() {
         🚀 Marketing Automation Dashboard
       </h1>
       <p style={{ textAlign: 'center', color: '#7f8c8d', marginBottom: '20px' }}>
-        FREE automated campaigns powered by weather, permits & competitors
+        Generate 10-20 fresh leads per day for the most influential Phoenix areas
         {lastUpdate && <span style={{ display: 'block', fontSize: '12px', color: '#3498db', marginTop: '5px' }}>
-          🔄 Last updated: {lastUpdate} (Monitoring Phoenix window market every 5 seconds)
+          � Last updated: {lastUpdate} (Daily opportunity generation for Phoenix window market)
         </span>}
       </p>
 
@@ -102,7 +109,7 @@ export default function MarketingDashboard() {
         onClick={runCampaigns}
         disabled={loading}
       >
-        {loading ? '🔄 Running Campaigns...' : '🎯 Run Automated Campaigns'}
+        {loading ? '🔄 Generating Daily Leads...' : '🎯 Generate Daily Leads'}
       </button>
 
       {campaignData && (
@@ -157,7 +164,7 @@ export default function MarketingDashboard() {
               </div>
               <p style={{ color: '#e74c3c', marginBottom: '5px', fontSize: '14px' }}>🎯 {campaign.trigger}</p>
               <p style={{ color: '#34495e', marginBottom: '5px', fontSize: '14px', lineHeight: '1.4' }}>{campaign.message}</p>
-              <p style={{ color: '#7f8c8d', marginBottom: '3px', fontSize: '12px' }}>📍 Target ZIPs: {campaign.target_zips.join(', ')}</p>
+              <p style={{ color: '#7f8c8d', marginBottom: '3px', fontSize: '12px' }}>🎯 Targeting high-value Phoenix areas</p>
               {campaign.competitor && (
                 <p style={{ color: '#e67e22', fontSize: '12px', fontStyle: 'italic' }}>🏢 Targeting competitor: {campaign.competitor}</p>
               )}

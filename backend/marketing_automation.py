@@ -47,7 +47,7 @@ class MarketingAutomation:
         current_hour = datetime.now().hour
         current_month = datetime.now().month
 
-        # Base scenarios that always happen
+        # Base scenarios that always happen (expanded for more lead volume)
         base_scenarios = [
             {
                 "type": "emergency_repair",
@@ -83,6 +83,55 @@ class MarketingAutomation:
                 "source": "email",
                 "urgency": "medium",
                 "value": random.randint(8500, 15000)
+            },
+            {
+                "type": "broken_lock",
+                "message": "Our window lock broke and we can't secure the house properly. Safety concern with young kids. Emergency service needed.",
+                "source": "phone_call",
+                "urgency": "high",
+                "value": random.randint(400, 800)
+            },
+            {
+                "type": "water_leak",
+                "message": "Water leaking through the window frame during rain. Causing damage to flooring. Need immediate repair.",
+                "source": "text_message",
+                "urgency": "high",
+                "value": random.randint(500, 1000)
+            },
+            {
+                "type": "aging_windows",
+                "message": "Our windows are 25 years old and starting to fog up. Time for replacement before they fail completely.",
+                "source": "email",
+                "urgency": "medium",
+                "value": random.randint(4800, 8200)
+            },
+            {
+                "type": "noise_reduction",
+                "message": "Living on a busy street and the traffic noise comes right through the windows. Need better soundproofing.",
+                "source": "phone_call",
+                "urgency": "medium",
+                "value": random.randint(3200, 5800)
+            },
+            {
+                "type": "curtain_rod_damage",
+                "message": "Heavy curtains pulled down our curtain rods and cracked the window frame. Need structural repair.",
+                "source": "text_message",
+                "urgency": "low",
+                "value": random.randint(600, 1200)
+            },
+            {
+                "type": "mold_concern",
+                "message": "Noticed mold growing around window frames. Worried about health issues. Need inspection and replacement.",
+                "source": "email",
+                "urgency": "high",
+                "value": random.randint(2800, 4500)
+            },
+            {
+                "type": "pet_damage",
+                "message": "Our dog jumped through the screen and broke the window. Need emergency boarding up and replacement.",
+                "source": "phone_call",
+                "urgency": "high",
+                "value": random.randint(700, 1300)
             }
         ]
 
@@ -192,9 +241,17 @@ class MarketingAutomation:
         # Combine all scenarios
         all_scenarios = base_scenarios + weather_scenarios + seasonal_scenarios + time_scenarios
 
-        # Generate 3-8 random leads based on market activity
-        num_leads = random.randint(3, 8)
-        selected_scenarios = random.sample(all_scenarios, min(num_leads, len(all_scenarios)))
+        # Generate 10-20 leads (allow duplicates with slight variations for volume)
+        num_leads = random.randint(10, 20)
+
+        # If we don't have enough unique scenarios, allow duplicates
+        if len(all_scenarios) >= num_leads:
+            selected_scenarios = random.sample(all_scenarios, num_leads)
+        else:
+            # Use all available scenarios and duplicate some
+            selected_scenarios = all_scenarios.copy()
+            while len(selected_scenarios) < num_leads:
+                selected_scenarios.append(random.choice(all_scenarios))
 
         for scenario in selected_scenarios:
             # Add realistic contact info and timing
@@ -552,8 +609,29 @@ class MarketingAutomation:
         return campaigns
 
     # 4. MASTER CAMPAIGN COORDINATOR
+
+    def select_best_campaign(self, campaigns: List[Dict]) -> Dict:
+        """Select the single best campaign based on urgency and market impact"""
+        if not campaigns:
+            return None
+
+        # Priority order: high > medium > low
+        urgency_priority = {'high': 3, 'medium': 2, 'low': 1}
+
+        # Sort campaigns by urgency (highest first)
+        sorted_campaigns = sorted(campaigns, key=lambda c: urgency_priority.get(c.get('urgency', 'low'), 0), reverse=True)
+
+        # Return the highest priority campaign, but modify it to target most influential areas
+        best_campaign = sorted_campaigns[0].copy()
+
+        # Target the most influential zip codes (highest income areas in Phoenix)
+        influential_zips = ["85253", "85255", "85018", "85258", "85254"]  # Scottsdale, Paradise Valley, etc.
+        best_campaign['target_zips'] = influential_zips[:3]  # Just show top 3 to not overwhelm
+
+        return best_campaign
+
     def run_automated_campaigns(self) -> Dict:
-        """Run all automated campaign checks and return active campaigns"""
+        """Run all automated campaign checks and return the best single campaign for the day"""
         all_campaigns = []
 
         # Check all triggers
@@ -565,25 +643,30 @@ class MarketingAutomation:
         all_campaigns.extend(permit_campaigns)
         all_campaigns.extend(competitor_campaigns)
 
+        # Select the single best campaign for the day based on urgency
+        selected_campaign = self.select_best_campaign(all_campaigns)
+
         # Save active campaigns with fresh market data
         data = self.load_campaign_data()
-        data["active_campaigns"] = all_campaigns
+        data["active_campaigns"] = [selected_campaign] if selected_campaign else []
         data["last_weather_check"] = datetime.now().isoformat()
         data["last_permit_check"] = datetime.now().isoformat()
         data["last_competitor_check"] = datetime.now().isoformat()
         data["market_data"] = self.generate_market_data()  # Always refresh market data
         self.save_campaign_data(data)
 
-        # Return campaigns with live market data
+        # Return single campaign with live market data
         market_data = data["market_data"]
         real_leads = self.generate_real_lead_messages()
 
+        selected_campaigns = [selected_campaign] if selected_campaign else []
+
         return {
-            "total_campaigns": len(all_campaigns),
-            "weather_campaigns": len(weather_campaigns),
-            "permit_campaigns": len(permit_campaigns),
-            "competitor_campaigns": len(competitor_campaigns),
-            "campaigns": all_campaigns,
+            "total_campaigns": len(selected_campaigns),
+            "weather_campaigns": 1 if selected_campaign and selected_campaign.get('type', '').startswith(('heat_wave', 'monsoon', 'energy_savings')) else 0,
+            "permit_campaigns": 1 if selected_campaign and 'permit' in selected_campaign.get('type', '') else 0,
+            "competitor_campaigns": 1 if selected_campaign and 'competitor' in selected_campaign.get('type', '') else 0,
+            "campaigns": selected_campaigns,
             "last_updated": datetime.now().isoformat(),
             "market_data": market_data,  # Include fluctuating market data
             "live_metrics": {

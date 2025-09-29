@@ -4,6 +4,40 @@
       "timestamp": "2025-09-29T02:50:40.139876",
       "campaigns_generated": 0,
       "campaign_details": []
+    },
+    {
+      "timestamp": "2025-09-29T15:13:03.460791",
+      "campaigns_generated": 1,
+      "campaign_details": [
+        {
+          "type": "demo_heat_wave",
+          "trigger": "Demo: Phoenix heat wave conditions",
+          "message": "\ud83c\udf21\ufe0f PHOENIX HEAT WAVE ALERT: Beat the heat with energy-efficient windows! FREE thermal scan reveals hidden energy loss.",
+          "target_zips": [
+            "85253",
+            "85255",
+            "85018"
+          ],
+          "urgency": "high"
+        }
+      ]
+    },
+    {
+      "timestamp": "2025-09-29T15:16:11.830184",
+      "campaigns_generated": 1,
+      "campaign_details": [
+        {
+          "type": "demo_heat_wave",
+          "trigger": "Demo: Phoenix heat wave conditions",
+          "message": "\ud83c\udf21\ufe0f PHOENIX HEAT WAVE ALERT: Beat the heat with energy-efficient windows! FREE thermal scan reveals hidden energy loss.",
+          "target_zips": [
+            "85253",
+            "85255",
+            "85018"
+          ],
+          "urgency": "high"
+        }
+      ]
     }
   ]
 }

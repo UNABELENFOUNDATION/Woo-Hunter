@@ -5,30 +5,30 @@
       "trigger": "Demo: Phoenix heat wave conditions",
       "message": "\ud83c\udf21\ufe0f PHOENIX HEAT WAVE ALERT: Beat the heat with energy-efficient windows! FREE thermal scan reveals hidden energy loss.",
       "target_zips": [
-        "85254",
-        "85032",
-        "85308"
+        "85253",
+        "85255",
+        "85018"
       ],
       "urgency": "high"
     }
   ],
   "campaign_history": [],
   "roi_tracking": {},
-  "last_weather_check": "2025-09-29T03:44:23.182239",
-  "last_permit_check": "2025-09-29T03:44:23.182239",
-  "last_competitor_check": "2025-09-29T03:44:23.182239",
+  "last_weather_check": "2025-09-29T15:16:10.731253",
+  "last_permit_check": "2025-09-29T15:16:10.731253",
+  "last_competitor_check": "2025-09-29T15:16:10.731253",
   "market_data": {
-    "lead_velocity": 17,
-    "conversion_rate": 9.46,
-    "avg_deal_size": 4269,
-    "competitor_activity": 53,
-    "market_temperature": 101,
-    "permit_volume": 155,
-    "response_time": 4,
-    "cost_per_lead": 0.5,
-    "roi_multiplier": 4.04,
-    "market_trend": "\ufffd BOOMING",
-    "last_update": "2025-09-29T03:44:23.689950",
-    "volatility_index": 19
+    "lead_velocity": 52,
+    "conversion_rate": 7.84,
+    "avg_deal_size": 4079,
+    "competitor_activity": 65,
+    "market_temperature": 96,
+    "permit_volume": 103,
+    "response_time": 10,
+    "cost_per_lead": 4.46,
+    "roi_multiplier": 4.46,
+    "market_trend": "\ufffd HOT MARKET",
+    "last_update": "2025-09-29T15:16:11.279345",
+    "volatility_index": 22
   }
 }
